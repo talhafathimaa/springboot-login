@@ -1,7 +1,9 @@
 package com.tw.login.user.service;
 
 import com.tw.login.user.entity.User;
-import com.tw.login.user.exception.InvalidDetailsException;
+import com.tw.login.user.exception.PasswordIncorrectException;
+import com.tw.login.user.exception.UserAlreadyPresentException;
+import com.tw.login.user.exception.UserNotRegisteredException;
 import com.tw.login.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,37 +20,26 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public void add(User user) throws InvalidDetailsException {
-        if (user.getUserName().isEmpty()) {
-            throw new InvalidDetailsException("Invalid Username");
-        }
+    public void add(User user) throws UserAlreadyPresentException {
         Optional<User> userOptional = userRepository.findByUserName(user.getUserName());
         if (userOptional.isPresent()) {
-            throw new InvalidDetailsException("User already present");
+            throw new UserAlreadyPresentException("User already present");
         }
-        if (user.getPassword().length() > 5) {
-            userRepository.save(user);
-        } else {
-            throw new InvalidDetailsException("Password should have at-least 6 characters");
-        }
+        userRepository.save(user);
     }
 
-    public void validate(User user) throws InvalidDetailsException {
-        if (user.getUserName().isBlank()) {
-            throw new InvalidDetailsException("Invalid Username");
-        }
+    public void validate(User user) throws UserNotRegisteredException, PasswordIncorrectException {
         Optional<User> userOptional = userRepository.findByUserName(user.getUserName());
         if (userOptional.isEmpty()) {
-            throw new InvalidDetailsException("User Not Registered");
+            throw new UserNotRegisteredException("User Not Registered");
         }
         if (!(user.getPassword().equals(userOptional.get().getPassword()))) {
-            throw new InvalidDetailsException("Incorrect password");
+            throw new PasswordIncorrectException("Incorrect password");
         }
     }
 
-    public User getDetails(String userName) throws InvalidDetailsException {
-        return userRepository.findByUserName(userName).orElseThrow(() -> new InvalidDetailsException("Invalid username"));
-
+    public User getDetails(String userName) throws UserNotRegisteredException {
+        return userRepository.findByUserName(userName).orElseThrow(() -> new UserNotRegisteredException("User Not Registered"));
     }
 }
 
