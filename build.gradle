@@ -22,6 +22,7 @@ dependencies {
     testImplementation 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'org.hibernate.validator:hibernate-validator'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
 flyway {

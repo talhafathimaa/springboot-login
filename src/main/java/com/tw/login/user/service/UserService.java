@@ -6,6 +6,7 @@ import com.tw.login.user.exception.UserAlreadyPresentException;
 import com.tw.login.user.exception.UserNotRegisteredException;
 import com.tw.login.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,9 +16,12 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository,PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder=passwordEncoder;
     }
 
     public void add(User user) throws UserAlreadyPresentException {
@@ -25,6 +29,8 @@ public class UserService {
         if (userOptional.isPresent()) {
             throw new UserAlreadyPresentException("User already present");
         }
+        String encodedPassword= passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
         userRepository.save(user);
     }
 
@@ -33,7 +39,7 @@ public class UserService {
         if (userOptional.isEmpty()) {
             throw new UserNotRegisteredException("User Not Registered");
         }
-        if (!(user.getPassword().equals(userOptional.get().getPassword()))) {
+        if (!passwordEncoder.matches(user.getPassword(),userOptional.get().getPassword())) {
             throw new PasswordIncorrectException("Incorrect password");
         }
     }
