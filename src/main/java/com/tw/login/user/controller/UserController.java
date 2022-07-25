@@ -36,8 +36,8 @@ public class UserController {
             User user = modelMapper.map(registerDto, User.class);
             userService.add(user);
             return new ResponseEntity<>("Registration successful", HttpStatus.CREATED);
-        } catch (UserAlreadyPresentException e) {
-            return new ResponseEntity<>("Registration failed " + e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch (UserAlreadyPresentException exception) {
+            return new ResponseEntity<>("Registration failed " + exception.getMessage(), HttpStatus.CONFLICT);
         }
     }
 
@@ -47,8 +47,8 @@ public class UserController {
             User user = modelMapper.map(loginDto, User.class);
             userService.validate(user);
             return new ResponseEntity<>("Login successful", HttpStatus.OK);
-        } catch (UserNotRegisteredException | PasswordIncorrectException e) {
-            return new ResponseEntity<>("Login failed " + e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch (UserNotRegisteredException | PasswordIncorrectException exception) {
+            return new ResponseEntity<>("Login failed " + exception.getMessage(), HttpStatus.UNAUTHORIZED);
         }
     }
 
