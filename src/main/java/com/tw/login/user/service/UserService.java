@@ -34,7 +34,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void validate(User user) throws UserNotRegisteredException, PasswordIncorrectException {
+    public User validate(User user) throws UserNotRegisteredException, PasswordIncorrectException {
         Optional<User> userOptional = userRepository.findByUserName(user.getUserName());
         if (userOptional.isEmpty()) {
             throw new UserNotRegisteredException("User Not Registered");
@@ -42,10 +42,11 @@ public class UserService {
         if (!passwordEncoder.matches(user.getPassword(),userOptional.get().getPassword())) {
             throw new PasswordIncorrectException("Incorrect password");
         }
+        return userOptional.get();
     }
 
-    public User getDetails(String userName) throws UserNotRegisteredException {
-        return userRepository.findByUserName(userName).orElseThrow(() -> new UserNotRegisteredException("User Not Registered"));
+    public User getDetails(Long id) throws UserNotRegisteredException {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotRegisteredException("User Not Registered"));
     }
 }
 
